@@ -16,3 +16,11 @@ class Boid():
         delta_y = self.v * delta_t * np.sin(self.theta)
         self.r = self.r + np.array([delta_x, delta_y])
         return
+
+    def set_x(self, x):
+        """blah"""
+        self.r[0] = x
+
+    def set_y(self, y):
+        """blah"""
+        self.r[1] = y

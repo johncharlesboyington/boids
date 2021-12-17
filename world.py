@@ -13,11 +13,11 @@ class World():
         # world parameters
         self.world_name = 'single_boid'
         self.world_size = (10, 10)
-        self.delta_t = 0.05
+        self.delta_t = 0.5
         self.n_timesteps = 100
         self.initial_boid_r = np.array([0, 0])
         self.initial_boid_v = 1
-        self.initial_boid_theta = 0
+        self.initial_boid_theta = -2
         self.boids = []
         self.N_boids = 1
 
@@ -35,7 +35,7 @@ class World():
 
         # initialize the boids (one in this case)
         # this is the endpoint
-        point = ax.plot(*self.boids[0].r, c='k', marker='o', ms=5)[0]
+        point = ax.plot(*self.boids[0].r, c='k', marker='o', ms=10)[0]
 
         # a function used in mpl animation
         def animate(i):
@@ -45,6 +45,9 @@ class World():
             # update the boid
             self.boids[0].update_position(self.delta_t)
 
+            # now check the boundaries
+            self.check_boundaries(self.boids[0])
+
             # now update the point on the plot
             point.set_xdata(self.boids[0].r[0])
             point.set_ydata(self.boids[0].r[1])
@@ -53,10 +56,25 @@ class World():
         # this controls the animation
         # all integers are in ms (I believe)
         ani = animation.FuncAnimation(fig, animate, frames=self.n_timesteps,
-                                      interval=50)
+                                      interval=40)
 
         # and finally, save the animation as a .gif
         ani.save(self.world_name + '.gif')
+        return
+
+    def check_boundaries(self, boid):
+        """blah"""
+        # check the x
+        if boid.r[0] > self.world_size[0] / 2:
+            boid.set_x(boid.r[0] - self.world_size[0])
+        elif boid.r[0] < -self.world_size[0] / 2:
+            boid.set_x(boid.r[0] + self.world_size[0])
+
+        # check the y
+        if boid.r[1] > self.world_size[1] / 2:
+            boid.set_y(boid.r[1] - self.world_size[1])
+        elif boid.r[1] < -self.world_size[1] / 2:
+            boid.set_y(boid.r[1] + self.world_size[1])
         return
 
 
