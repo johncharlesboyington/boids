@@ -12,6 +12,7 @@ class Boid():
 
     def update_position(self, delta_t):
         """blah"""
-        self.r *= self.v * delta_t * np.array(np.cos(self.theta),
-                                              np.sin(self.theta))
+        delta_x = self.v * delta_t * np.cos(self.theta)
+        delta_y = self.v * delta_t * np.sin(self.theta)
+        self.r = self.r + np.array([delta_x, delta_y])
         return
