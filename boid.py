@@ -8,6 +8,7 @@ class Boid():
         self.r = r_initial  # numpy array (x, y)
         self.v = v_initial  # float
         self.theta = theta_initial  # float
+        self.initialize_turn()
         return
 
     def update_position(self, delta_t):
@@ -29,12 +30,17 @@ class Boid():
         """blah"""
         self.theta = theta
 
+    def initialize_turn(self):
+        """blah"""
+        # cohesion
+        self.cohesion = 0
+
     def calculate_turn(self, boids):
         """blah"""
         # cohesion
         v = 0.2
-        cohesion = (v * self.calc_cohesion(boids)) + self.theta
-        self.set_theta(cohesion)
+        self.cohesion = (v * self.calc_cohesion(boids)) + self.theta
+        self.set_theta(self.cohesion)
         return
 
     def calc_separation(self):
@@ -53,7 +59,10 @@ class Boid():
         # calculate the angle between the two points
         new_vector = self.r - boid_cm
         if new_vector[0]:
-            new_theta = np.arctan(new_vector[1] / new_vector[0])
+            if new_vector[1] >= 0:
+                new_theta = np.arctan(new_vector[1] / new_vector[0])
+            elif new_vector[1] < 0:
+                new_theta = - np.arctan(new_vector[1] / new_vector[0])
         else:
             new_theta = self.theta
         return new_theta - self.theta

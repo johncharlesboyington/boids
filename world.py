@@ -40,9 +40,13 @@ class World():
 
         # initialize the boids (one in this case)
         points = []
+        cohesion_arrows = []
         for i in range(self.N_boids):
             points.append(ax.plot(*self.boids[i].r, c='k',
                                   marker='o', ms=10)[0])
+            cohesion_arrows.append(ax.plot([self.boids[i].r[0], self.boids[i].r[0] + np.cos(self.boids[i].cohesion)],
+                                           [self.boids[i].r[1], self.boids[i].r[1] + np.sin(self.boids[i].cohesion)],
+                                           lw=0.8, c='g')[0])
 
         # plot the center of mass
         cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
@@ -67,6 +71,12 @@ class World():
                 # now update the point on the plot
                 points[i].set_xdata(boid.r[0])
                 points[i].set_ydata(boid.r[1])
+
+                # update the cohesion arrows
+                cohesion_arrows[i].set_xdata([self.boids[i].r[0],
+                                              self.boids[i].r[0] + np.cos(self.boids[i].cohesion)])
+                cohesion_arrows[i].set_ydata([self.boids[i].r[1],
+                                              self.boids[i].r[1] + np.sin(self.boids[i].cohesion)])
 
             # plot the cm
             cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
