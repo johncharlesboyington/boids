@@ -39,11 +39,14 @@ class World():
         ax.set_ylim(-self.world_size[1] / 2, self.world_size[1] / 2)
 
         # initialize the boids (one in this case)
-        # this is the endpoint
         points = []
         for i in range(self.N_boids):
             points.append(ax.plot(*self.boids[i].r, c='k',
                                   marker='o', ms=10)[0])
+
+        # plot the center of mass
+        cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
+        cm_point = ax.plot(*cm, c='g', marker='o', ms=20)[0]
 
         # a function used in mpl animation
         def animate(i):
@@ -64,6 +67,11 @@ class World():
                 # now update the point on the plot
                 points[i].set_xdata(boid.r[0])
                 points[i].set_ydata(boid.r[1])
+
+            # plot the cm
+            cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
+            cm_point.set_xdata(cm[0])
+            cm_point.set_ydata(cm[1])
             return
 
         # this controls the animation
