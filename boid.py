@@ -32,7 +32,9 @@ class Boid():
     def calculate_turn(self, boids):
         """blah"""
         # cohesion
-        self.calc_cohesion(boids)
+        v = 0.2
+        cohesion = (v * self.calc_cohesion(boids)) + self.theta
+        self.set_theta(cohesion)
         return
 
     def calc_separation(self):
@@ -54,5 +56,4 @@ class Boid():
             new_theta = np.arctan(new_vector[1] / new_vector[0])
         else:
             new_theta = self.theta
-        print(new_theta)
-        return
+        return new_theta - self.theta

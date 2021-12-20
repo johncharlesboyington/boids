@@ -12,15 +12,15 @@ class World():
         """blah"""
         # hardcoding all values for now
         # world parameters
-        self.world_name = 'random_boids'
+        self.world_name = 'cohesive_boids'
         self.world_size = (10, 10)
-        self.delta_t = 0.25
+        self.delta_t = 0.20
         self.n_timesteps = 100
         self.initial_boid_r = np.array([0, 0])
         self.initial_boid_v = 1
         # self.initial_boid_theta = -2
         self.boids = []
-        self.N_boids = 10
+        self.N_boids = 20
 
         # create the boids (initially will just be one)
         # for _ in range(self.N_boids):
