@@ -13,14 +13,14 @@ class World():
         # hardcoding all values for now
         # world parameters
         self.world_name = 'cohesive_boids'
-        self.world_size = (10, 10)
-        self.delta_t = 0.20
-        self.n_timesteps = 100
+        self.world_size = (20, 20)
+        self.delta_t = 0.30
+        self.n_timesteps = 200
         self.initial_boid_r = np.array([0, 0])
         self.initial_boid_v = 1
         # self.initial_boid_theta = -2
         self.boids = []
-        self.N_boids = 20
+        self.N_boids = 5
 
         # create the boids (initially will just be one)
         # for _ in range(self.N_boids):
@@ -30,7 +30,7 @@ class World():
         for _ in range(self.N_boids):
             self.boids.append(Boid(self.initial_boid_r,
                                    self.initial_boid_v,
-                                   rand() * 2 * np.pi))
+                                   rand() * np.pi))
 
         # initialize the environment
         fig = plt.figure(0, figsize=(30, 30))
@@ -40,10 +40,14 @@ class World():
 
         # initialize the boids (one in this case)
         points = []
+        alignment_arrows = []
         cohesion_arrows = []
         for i in range(self.N_boids):
             points.append(ax.plot(*self.boids[i].r, c='k',
                                   marker='o', ms=10)[0])
+            alignment_arrows.append(ax.plot([self.boids[i].r[0], self.boids[i].r[0] + np.cos(self.boids[i].alignment)],
+                                            [self.boids[i].r[1], self.boids[i].r[1] + np.sin(self.boids[i].alignment)],
+                                            lw=0.8, c='b')[0])
             cohesion_arrows.append(ax.plot([self.boids[i].r[0], self.boids[i].r[0] + np.cos(self.boids[i].cohesion)],
                                            [self.boids[i].r[1], self.boids[i].r[1] + np.sin(self.boids[i].cohesion)],
                                            lw=0.8, c='g')[0])
@@ -71,6 +75,12 @@ class World():
                 # now update the point on the plot
                 points[i].set_xdata(boid.r[0])
                 points[i].set_ydata(boid.r[1])
+                
+                # update the cohesion arrows
+                alignment_arrows[i].set_xdata([self.boids[i].r[0],
+                                               self.boids[i].r[0] + np.cos(self.boids[i].alignment)])
+                alignment_arrows[i].set_ydata([self.boids[i].r[1],
+                                               self.boids[i].r[1] + np.sin(self.boids[i].alignment)])
 
                 # update the cohesion arrows
                 cohesion_arrows[i].set_xdata([self.boids[i].r[0],

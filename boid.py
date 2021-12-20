@@ -32,24 +32,32 @@ class Boid():
 
     def initialize_turn(self):
         """blah"""
-        # cohesion
+        self.separation = 0
+        self.alignment = 0
         self.cohesion = 0
 
     def calculate_turn(self, boids):
         """blah"""
+        # alignment
+        u = 0
+        self.alignment = (u * self.calc_alignment(boids)) + self.theta
+
         # cohesion
-        v = 0.2
+        v = 1
         self.cohesion = (v * self.calc_cohesion(boids)) + self.theta
-        self.set_theta(self.cohesion)
+        self.set_theta(self.alignment + self.cohesion - self.theta)
         return
 
     def calc_separation(self):
         """blah"""
         return
 
-    def calc_alignment(self):
+    def calc_alignment(self, boids):
         """blah"""
-        return
+        # calculate the average direction
+        boid_theta = np.average(np.array([boid.theta for boid in boids]))
+
+        return boid_theta - self.theta
 
     def calc_cohesion(self, boids):
         """blah"""
@@ -57,12 +65,13 @@ class Boid():
         boid_cm = np.average(np.array([boid.r for boid in boids]), axis=0)
 
         # calculate the angle between the two points
-        new_vector = self.r - boid_cm
+        new_vector = boid_cm - self.r
         if new_vector[0]:
             if new_vector[1] >= 0:
                 new_theta = np.arctan(new_vector[1] / new_vector[0])
             elif new_vector[1] < 0:
-                new_theta = - np.arctan(new_vector[1] / new_vector[0])
+                # new_theta = - np.arctan(new_vector[1] / new_vector[0])
+                new_theta = np.arctan(new_vector[1] / new_vector[0])
         else:
             new_theta = self.theta
         return new_theta - self.theta
