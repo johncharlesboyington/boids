@@ -14,13 +14,13 @@ class World():
         # world parameters
         self.world_name = 'random_boids'
         self.world_size = (10, 10)
-        self.delta_t = 0.5
+        self.delta_t = 0.25
         self.n_timesteps = 100
         self.initial_boid_r = np.array([0, 0])
         self.initial_boid_v = 1
         # self.initial_boid_theta = -2
         self.boids = []
-        self.N_boids = 100
+        self.N_boids = 10
 
         # create the boids (initially will just be one)
         # for _ in range(self.N_boids):
@@ -49,6 +49,10 @@ class World():
         def animate(i):
             """This function is necessary to do an mpl animation. The variable
             i is used to update the image."""
+
+            # update the theta
+            for j in range(len(self.boids)):
+                self.boids[j].calculate_turn(self.boids)
 
             # update the boid
             for i, boid in enumerate(self.boids):

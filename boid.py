@@ -24,3 +24,35 @@ class Boid():
     def set_y(self, y):
         """blah"""
         self.r[1] = y
+
+    def set_theta(self, theta):
+        """blah"""
+        self.theta = theta
+
+    def calculate_turn(self, boids):
+        """blah"""
+        # cohesion
+        self.calc_cohesion(boids)
+        return
+
+    def calc_separation(self):
+        """blah"""
+        return
+
+    def calc_alignment(self):
+        """blah"""
+        return
+
+    def calc_cohesion(self, boids):
+        """blah"""
+        # calculate the relevent center of mass
+        boid_cm = np.average(np.array([boid.r for boid in boids]), axis=0)
+
+        # calculate the angle between the two points
+        new_vector = self.r - boid_cm
+        if new_vector[0]:
+            new_theta = np.arctan(new_vector[1] / new_vector[0])
+        else:
+            new_theta = self.theta
+        print(new_theta)
+        return
