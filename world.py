@@ -15,12 +15,12 @@ class World():
         self.world_name = 'cohesive_boids'
         self.world_size = (20, 20)
         self.delta_t = 0.30
-        self.n_timesteps = 200
+        self.n_timesteps = 500
         self.initial_boid_r = np.array([0, 0])
         self.initial_boid_v = 1
         # self.initial_boid_theta = -2
         self.boids = []
-        self.N_boids = 5
+        self.N_boids = 25
 
         # create the boids (initially will just be one)
         # for _ in range(self.N_boids):
@@ -38,7 +38,7 @@ class World():
         ax.set_xlim(-self.world_size[0] / 2, self.world_size[0] / 2)
         ax.set_ylim(-self.world_size[1] / 2, self.world_size[1] / 2)
 
-        # initialize the boids (one in this case)
+        # initialize the boids
         points = []
         alignment_arrows = []
         cohesion_arrows = []

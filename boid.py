@@ -5,6 +5,10 @@ class Boid():
     """Boid Object"""
 
     def __init__(self, r_initial, v_initial, theta_initial):
+        # hardcoded boid parameters
+        self.visibility = 3
+
+        # boid parameters
         self.r = r_initial  # numpy array (x, y)
         self.v = v_initial  # float
         self.theta = theta_initial  # float
@@ -38,13 +42,16 @@ class Boid():
 
     def calculate_turn(self, boids):
         """blah"""
+        # calculate visible boids
+        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility]
+
         # alignment
-        u = 0
-        self.alignment = (u * self.calc_alignment(boids)) + self.theta
+        u = 0.5
+        self.alignment = (u * self.calc_alignment(visible_boids)) + self.theta
 
         # cohesion
-        v = 1
-        self.cohesion = (v * self.calc_cohesion(boids)) + self.theta
+        v = 0.5
+        self.cohesion = (v * self.calc_cohesion(visible_boids)) + self.theta
         self.set_theta(self.alignment + self.cohesion - self.theta)
         return
 
