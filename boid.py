@@ -6,7 +6,7 @@ class Boid():
 
     def __init__(self, r_initial, v_initial, theta_initial):
         # hardcoded boid parameters
-        self.visibility = 3
+        self.visibility = 2
 
         # boid parameters
         self.r = r_initial  # numpy array (x, y)
@@ -43,16 +43,27 @@ class Boid():
     def calculate_turn(self, boids):
         """blah"""
         # calculate visible boids
-        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility]
+        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility or id(self) != id(boid)]
 
         # alignment
-        u = 0.5
-        self.alignment = (u * self.calc_alignment(visible_boids)) + self.theta
+        u = 2
+        self.alignment = self.calc_alignment(visible_boids)
 
         # cohesion
-        v = 0.5
-        self.cohesion = (v * self.calc_cohesion(visible_boids)) + self.theta
-        self.set_theta(self.alignment + self.cohesion - self.theta)
+        v = 3
+        self.cohesion = self.calc_cohesion(visible_boids)
+
+        # momentum
+        w = 1
+
+        # normalize weighting
+        total_weight = u + v + w
+        u /= total_weight
+        v /= total_weight
+        w /= total_weight
+
+        # weighted summed turning
+        self.turn = u * self.alignment + v * self.cohesion + w * self.theta
         return
 
     def calc_separation(self):
@@ -63,8 +74,7 @@ class Boid():
         """blah"""
         # calculate the average direction
         boid_theta = np.average(np.array([boid.theta for boid in boids]))
-
-        return boid_theta - self.theta
+        return boid_theta
 
     def calc_cohesion(self, boids):
         """blah"""
@@ -74,11 +84,18 @@ class Boid():
         # calculate the angle between the two points
         new_vector = boid_cm - self.r
         if new_vector[0]:
-            if new_vector[1] >= 0:
+            if new_vector[0] >= 0 and new_vector[1] >= 0:
                 new_theta = np.arctan(new_vector[1] / new_vector[0])
-            elif new_vector[1] < 0:
-                # new_theta = - np.arctan(new_vector[1] / new_vector[0])
-                new_theta = np.arctan(new_vector[1] / new_vector[0])
+                #print('I')
+            elif new_vector[0] < 0 and new_vector[1] >= 0:
+                new_theta = np.pi - np.arctan(new_vector[1] / new_vector[0])
+                #print('II')
+            elif new_vector[0] < 0 and new_vector[1] < 0:
+                new_theta = np.pi + np.arctan(new_vector[1] / new_vector[0])
+                #print('III')
+            elif new_vector[0] >= 0 and new_vector[1] < 0:
+                new_theta = (2 * np.pi) - np.arctan(new_vector[1] / new_vector[0])
+                #print('IV')
         else:
             new_theta = self.theta
-        return new_theta - self.theta
+        return new_theta
