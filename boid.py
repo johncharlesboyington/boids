@@ -4,22 +4,20 @@ import numpy as np
 class Boid():
     """Boid Object"""
 
-    def __init__(self, r_initial, v_initial, theta_initial):
+    def __init__(self, r_initial, v_initial):
         # hardcoded boid parameters
-        self.visibility = 2
+        self.visibility = 5
+        self.collision_zone = 0.5
 
         # boid parameters
         self.r = r_initial  # numpy array (x, y)
-        self.v = v_initial  # float
-        self.theta = theta_initial  # float
+        self.v = v_initial  # numpy array (x, y)
         self.initialize_turn()
         return
 
     def update_position(self, delta_t):
         """blah"""
-        delta_x = self.v * delta_t * np.cos(self.theta)
-        delta_y = self.v * delta_t * np.sin(self.theta)
-        self.r = self.r + np.array([delta_x, delta_y])
+        self.r = self.r + (self.v * delta_t)
         return
 
     def set_x(self, x):
@@ -30,72 +28,53 @@ class Boid():
         """blah"""
         self.r[1] = y
 
-    def set_theta(self, theta):
-        """blah"""
-        self.theta = theta
-
     def initialize_turn(self):
         """blah"""
-        self.separation = 0
-        self.alignment = 0
-        self.cohesion = 0
+        self.separation = np.array([0, 0])
+        self.alignment = np.array([0, 0])
+        self.cohesion = np.array([0, 0])
 
     def calculate_turn(self, boids):
         """blah"""
         # calculate visible boids
-        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility or id(self) != id(boid)]
+        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility and id(self) != id(boid)]
+        colliding_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.collision_zone and id(self) != id(boid)]
+
+        # separation
+        self.separation = self.calc_separation(colliding_boids)
 
         # alignment
-        u = 2
         self.alignment = self.calc_alignment(visible_boids)
 
         # cohesion
-        v = 3
         self.cohesion = self.calc_cohesion(visible_boids)
 
-        # momentum
-        w = 1
-
-        # normalize weighting
-        total_weight = u + v + w
-        u /= total_weight
-        v /= total_weight
-        w /= total_weight
-
         # weighted summed turning
-        self.turn = u * self.alignment + v * self.cohesion + w * self.theta
+        self.v = self.separation + self.alignment + self.cohesion + self.v
         return
 
-    def calc_separation(self):
+    def calc_separation(self, boids):
         """blah"""
-        return
+        return 1.0 * np.sum(np.array([-(boid.r - self.r) for boid in boids]), axis=0)
 
     def calc_alignment(self, boids):
         """blah"""
         # calculate the average direction
-        boid_theta = np.average(np.array([boid.theta for boid in boids]))
-        return boid_theta
+        if boids:
+            boid_v = np.average(np.array([boid.v for boid in boids]), axis=0)
+        else:
+            boid_v = self.v
+
+        # subtract
+        return 0.125 * (boid_v - self.v)
 
     def calc_cohesion(self, boids):
         """blah"""
         # calculate the relevent center of mass
-        boid_cm = np.average(np.array([boid.r for boid in boids]), axis=0)
+        if boids:
+            boid_cm = np.average(np.array([boid.r for boid in boids]), axis=0)
+        else:
+            boid_cm = self.r
 
         # calculate the angle between the two points
-        new_vector = boid_cm - self.r
-        if new_vector[0]:
-            if new_vector[0] >= 0 and new_vector[1] >= 0:
-                new_theta = np.arctan(new_vector[1] / new_vector[0])
-                #print('I')
-            elif new_vector[0] < 0 and new_vector[1] >= 0:
-                new_theta = np.pi - np.arctan(new_vector[1] / new_vector[0])
-                #print('II')
-            elif new_vector[0] < 0 and new_vector[1] < 0:
-                new_theta = np.pi + np.arctan(new_vector[1] / new_vector[0])
-                #print('III')
-            elif new_vector[0] >= 0 and new_vector[1] < 0:
-                new_theta = (2 * np.pi) - np.arctan(new_vector[1] / new_vector[0])
-                #print('IV')
-        else:
-            new_theta = self.theta
-        return new_theta
+        return 0.01 * (boid_cm - self.r)
