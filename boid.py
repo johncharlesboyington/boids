@@ -7,7 +7,8 @@ class Boid():
     def __init__(self, r_initial, v_initial):
         # hardcoded boid parameters
         self.visibility = 5
-        self.collision_zone = 0.5
+        self.collision_radius = 0.5
+        self.field_of_view = 90 * (np.pi / 180)
 
         # boid parameters
         self.r = r_initial  # numpy array (x, y)
@@ -37,8 +38,14 @@ class Boid():
     def calculate_turn(self, boids):
         """blah"""
         # calculate visible boids
-        visible_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility and id(self) != id(boid)]
-        colliding_boids = [boid for boid in boids if np.sqrt(np.sum((boid.r - self.r)**2)) < self.collision_zone and id(self) != id(boid)]
+        visible_boids = [boid for boid in boids
+                         if (np.sqrt(np.sum((boid.r - self.r)**2)) < self.visibility
+                             and calc_angle((boid.r - self.r), self.v) < self.field_of_view
+                             and id(self) != id(boid))]
+        colliding_boids = [boid for boid in boids
+                           if (np.sqrt(np.sum((boid.r - self.r)**2)) < self.collision_radius
+                               and calc_angle((boid.r - self.r), self.v) < self.field_of_view
+                               and id(self) != id(boid))]
 
         # separation
         self.separation = self.calc_separation(colliding_boids)
@@ -55,7 +62,7 @@ class Boid():
 
     def calc_separation(self, boids):
         """blah"""
-        return 1.0 * np.sum(np.array([-(boid.r - self.r) for boid in boids]), axis=0)
+        return 0.05 * np.sum(np.array([-(boid.r - self.r) for boid in boids]), axis=0)
 
     def calc_alignment(self, boids):
         """blah"""
@@ -66,7 +73,7 @@ class Boid():
             boid_v = self.v
 
         # subtract
-        return 0.125 * (boid_v - self.v)
+        return 0.05 * (boid_v - self.v)
 
     def calc_cohesion(self, boids):
         """blah"""
@@ -77,4 +84,11 @@ class Boid():
             boid_cm = self.r
 
         # calculate the angle between the two points
-        return 0.01 * (boid_cm - self.r)
+        return 0.005 * (boid_cm - self.r)
+
+
+def calc_angle(u, v):
+    """calculates the angle between two vectors"""
+    top = np.sum(u * v)
+    bot = np.sqrt(np.sum(u**2)) + np.sqrt(np.sum(v**2))
+    return np.arccos(top / bot)

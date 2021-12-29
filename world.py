@@ -13,9 +13,9 @@ class World():
         # hardcoding all values for now
         # world parameters
         self.world_name = 'boids'
-        self.world_size = (20, 20)
-        self.delta_t = 1
-        self.n_timesteps = 400
+        self.world_size = (30, 30)
+        self.delta_t = 1.0
+        self.n_timesteps = 500
         self.initial_boid_r = np.array([0, 0])
         self.boids = []
         self.N_boids = 50
