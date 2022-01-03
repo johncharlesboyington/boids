@@ -13,7 +13,8 @@ class World():
         # hardcoding all values for now
         # world parameters
         self.world_name = 'boids'
-        self.world_size = (30, 30)
+        self.world_size = np.array([30, 30])
+        self.margin = 1
         self.delta_t = 1.0
         self.n_timesteps = 500
         self.initial_boid_r = np.array([0, 0])
@@ -37,29 +38,11 @@ class World():
         for i in range(self.N_boids):
             points.append(ax.plot(*self.boids[i].r, c='k',
                                   marker='o', ms=10)[0])
-            # alignment_arrows.append(ax.plot([self.boids[i].r[0], self.boids[i].r[0] + np.cos(self.boids[i].alignment)],
-            #                                 [self.boids[i].r[1], self.boids[i].r[1] + np.sin(self.boids[i].alignment)],
-            #                                 lw=0.8, c='b')[0])
-            # cohesion_arrows.append(ax.plot([self.boids[i].r[0], self.boids[i].r[0] + np.cos(self.boids[i].cohesion)],
-            #                                [self.boids[i].r[1], self.boids[i].r[1] + np.sin(self.boids[i].cohesion)],
-            #                                lw=0.8, c='g')[0])
-
-        # changing the code here to just look at one boid
-        # alignment_arrow = ax.plot([self.boids[0].r[0], self.boids[0].r[0] + np.cos(self.boids[0].alignment)],
-        #                           [self.boids[0].r[1], self.boids[0].r[1] + np.sin(self.boids[0].alignment)],
-        #                           lw=0.8, c='b')[0]
-        # cohesion_arrow = ax.plot([self.boids[0].r[0], self.boids[0].r[0] + np.cos(self.boids[0].cohesion)],
-        #                          [self.boids[0].r[1], self.boids[0].r[1] + np.sin(self.boids[0].cohesion)],
-        #                          lw=0.8, c='g')[0]
 
         # create the range of visibility
         visible_zone = ax.add_patch(plt.Circle(self.boids[0].r,
                                                self.boids[0].visibility,
                                                fill=False))
-
-        # plot the center of mass
-        # cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
-        # cm_point = ax.plot(*cm, c='g', marker='o', ms=20)[0]
 
         # a function used in mpl animation
         def animate(frame=True):
@@ -71,14 +54,15 @@ class World():
 
             # calculate the new turn
             for j in range(len(self.boids)):
-                self.boids[j].calculate_turn(self.boids)
+                self.boids[j].calculate_turn(self.boids, self.world_size,
+                                             self.margin)
 
             # update the boid
             for i, boid in enumerate(self.boids):
                 boid.update_position(self.delta_t)
 
-                # now check the boundaries
-                self.check_boundaries(boid)
+                # now check the boundaries (removed because of adding margins and bouncing)
+                # self.check_boundaries(boid)
 
                 # now update the point on the plot
                 points[i].set_xdata(boid.r[0])
@@ -88,25 +72,9 @@ class World():
                 else:
                     points[i].set_color('k')
 
-            # update the cohesion arrow
-            # alignment_arrow.set_xdata([self.boids[0].r[0],
-            #                            self.boids[0].r[0] + np.cos(self.boids[0].alignment)])
-            # alignment_arrow.set_ydata([self.boids[0].r[1],
-            #                            self.boids[0].r[1] + np.sin(self.boids[0].alignment)])
-
-            # # update the cohesion arrow
-            # cohesion_arrow.set_xdata([self.boids[0].r[0],
-            #                           self.boids[0].r[0] + np.cos(self.boids[0].cohesion)])
-            # cohesion_arrow.set_ydata([self.boids[0].r[1],
-            #                           self.boids[0].r[1] + np.sin(self.boids[0].cohesion)])
 
             # update the circle
             visible_zone.center = self.boids[0].r
-
-            # plot the cm
-            # cm = np.average(np.array([boid.r for boid in self.boids]), axis=0)
-            # cm_point.set_xdata(cm[0])
-            # cm_point.set_ydata(cm[1])
             return
 
         # this controls the animation
@@ -119,7 +87,6 @@ class World():
         
         # this is the option for a non-.gif animation
         while True:
-            #plt.show()
             plt.pause(0.001)
             animate()
         return
