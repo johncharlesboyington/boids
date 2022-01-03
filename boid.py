@@ -40,8 +40,9 @@ class Boid():
         self.separation = np.array([0, 0])
         self.alignment = np.array([0, 0])
         self.cohesion = np.array([0, 0])
+        self.margin = np.array([0, 0])
 
-    def calculate_turn(self, boids):
+    def calculate_turn(self, boids, world_size, margin):
         """blah"""
         # calculate visible boids
         visible_boids = [boid for boid in boids
@@ -62,8 +63,11 @@ class Boid():
         # cohesion
         self.cohesion = self.calc_cohesion(visible_boids)
 
+        # margin
+        self.margin = self.calc_margin(world_size, margin)
+
         # weighted summed turning
-        self.v = self.separation + self.alignment + self.cohesion + self.v
+        self.v = self.separation + self.alignment + self.cohesion + self.margin + self.v
         return
 
     def calc_separation(self, boids):
@@ -91,6 +95,13 @@ class Boid():
 
         # calculate the angle between the two points
         return 0.005 * (boid_cm - self.r)
+
+    def calc_margin(self, world_size, margin):
+        """blah"""
+        # calculate which direction to move
+        dimension = np.array(abs(self.r) > ((world_size / 2) - margin)).astype(int)
+        direction = - np.array(self.r / abs(self.r)).astype(int)
+        return 0.1 * dimension * direction
 
 
 def calc_angle(u, v):
