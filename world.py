@@ -18,7 +18,7 @@ class World():
         self.n_timesteps = 500
         self.initial_boid_r = np.array([0, 0])
         self.boids = []
-        self.N_boids = 50
+        self.N_boids = 10
 
         # create the boids (initially will just be one)
         for _ in range(self.N_boids):
@@ -62,7 +62,7 @@ class World():
         # cm_point = ax.plot(*cm, c='g', marker='o', ms=20)[0]
 
         # a function used in mpl animation
-        def animate(i):
+        def animate(frame=True):
             """This function is necessary to do an mpl animation. The variable
             i is used to update the image."""
 
@@ -111,11 +111,17 @@ class World():
 
         # this controls the animation
         # all integers are in ms (I believe)
-        ani = animation.FuncAnimation(fig, animate, frames=self.n_timesteps,
-                                      interval=40)
+        # ani = animation.FuncAnimation(fig, animate, frames=self.n_timesteps,
+        #                               interval=40)
 
         # and finally, save the animation as a .gif
-        ani.save(self.world_name + '.gif')
+        # ani.save(self.world_name + '.gif')
+        
+        # this is the option for a non-.gif animation
+        while True:
+            #plt.show()
+            plt.pause(0.001)
+            animate()
         return
 
     def check_boundaries(self, boid):
