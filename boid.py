@@ -9,6 +9,7 @@ class Boid():
         self.visibility = 5
         self.collision_radius = 0.5
         self.field_of_view = 90 * (np.pi / 180)
+        self.max_v = 0.5
 
         # boid parameters
         self.r = r_initial  # numpy array (x, y)
@@ -18,6 +19,11 @@ class Boid():
 
     def update_position(self, delta_t):
         """blah"""
+        # check against maximum velocity and scale
+        if np.linalg.norm(self.v) > self.max_v:
+            self.v *= (self.max_v / np.linalg.norm(self.v))
+
+        # update
         self.r = self.r + (self.v * delta_t)
         return
 
