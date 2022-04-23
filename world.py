@@ -57,12 +57,20 @@ class World():
                 self.boids[j].calculate_turn(self.boids, self.world_size,
                                              self.margin)
 
+            # list of dead boids
+            dead_boids = []
+
             # update the boid
             for i, boid in enumerate(self.boids):
-                boid.update_position(self.delta_t)
 
-                # now check the boundaries (removed because of adding margins and bouncing)
-                # self.check_boundaries(boid)
+                if boid.alive:
+                    boid.update_position(self.delta_t)
+                    boid.calc_energy_loss()
+                    boid.check_alive()
+
+                # remove dead boids
+                if not boid.alive:
+                    dead_boids.append(i)
 
                 # now update the point on the plot
                 points[i].set_xdata(boid.r[0])
@@ -72,10 +80,19 @@ class World():
                 else:
                     points[i].set_color('k')
 
+            # remove dead boids
+            for i in dead_boids:
+                self.boids.remove(self.boids[i])
+                points[i].remove()
+                points.remove(points[i])
+
+            # stop the animation if all the boids are dead
+            if len(self.boids) == 0:
+                return False
 
             # update the circle
             visible_zone.center = self.boids[0].r
-            return
+            return True
 
         # this controls the animation
         # all integers are in ms (I believe)
@@ -84,11 +101,13 @@ class World():
 
         # and finally, save the animation as a .gif
         # ani.save(self.world_name + '.gif')
-        
+
         # this is the option for a non-.gif animation
-        while True:
+        run = True
+        while run:
             plt.pause(0.001)
-            animate()
+            run = animate()
+        plt.close()
         return
 
     def check_boundaries(self, boid):

@@ -10,6 +10,8 @@ class Boid():
         self.collision_radius = 0.5
         self.field_of_view = 90 * (np.pi / 180)
         self.max_v = 0.5
+        self.energy = 100
+        self.alive = True
 
         # boid parameters
         self.r = r_initial  # numpy array (x, y)
@@ -102,6 +104,17 @@ class Boid():
         dimension = np.array(abs(self.r) > ((world_size / 2) - margin)).astype(int)
         direction = - np.array(self.r / abs(self.r)).astype(int)
         return 0.1 * dimension * direction
+
+    def calc_energy_loss(self):
+        """blah"""
+        self.energy -= np.sqrt(np.sum(self.v**2))
+        return
+
+    def check_alive(self):
+        """blah"""
+        if self.energy <= 0:
+            self.alive = False
+        return
 
 
 def calc_angle(u, v):
