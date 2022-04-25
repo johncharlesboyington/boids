@@ -1,8 +1,8 @@
 import numpy as np
-from numpy.random import rand
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from boid import Boid
+import boid
+import food
 
 
 class World():
@@ -20,12 +20,13 @@ class World():
         self.initial_boid_r = np.array([0, 0])
         self.boids = []
         self.N_boids = 10
+        self.N_foods = 3
 
-        # create the boids (initially will just be one)
-        for _ in range(self.N_boids):
-            self.boids.append(Boid(np.array([rand() * self.world_size[0] - (self.world_size[0] / 2),
-                                             rand() * self.world_size[0] - (self.world_size[0] / 2)]),
-                                   np.array([2 * rand() - 1, 2 * rand() - 1])))
+        # create the boids
+        self.boids = boid.create_boids(self.N_boids, self.world_size)
+
+        # create the foods
+        self.foods = food.create_foods(self.N_foods, self.world_size)
 
         # initialize the environment
         fig = plt.figure(0, figsize=(30, 30))
@@ -34,10 +35,16 @@ class World():
         ax.set_ylim(-self.world_size[1] / 2, self.world_size[1] / 2)
 
         # initialize the boids
-        points = []
+        boid_points = []
         for i in range(self.N_boids):
-            points.append(ax.plot(*self.boids[i].r, c='k',
-                                  marker='o', ms=10)[0])
+            boid_points.append(ax.plot(*self.boids[i].r, c='k',
+                                       marker='o', ms=10)[0])
+
+        # initialize the food
+        food_points = []
+        for i in range(self.N_foods):
+            food_points.append(ax.plot(*self.foods[i].r, c='g',
+                                       marker='o', ms=10)[0])
 
         # create the range of visibility
         visible_zone = ax.add_patch(plt.Circle(self.boids[0].r,
@@ -54,8 +61,8 @@ class World():
 
             # calculate the new turn
             for j in range(len(self.boids)):
-                self.boids[j].calculate_turn(self.boids, self.world_size,
-                                             self.margin)
+                self.boids[j].calculate_turn(self.boids, self.foods,
+                                             self.world_size, self.margin)
 
             # list of dead boids
             dead_boids = []
@@ -73,18 +80,20 @@ class World():
                     dead_boids.append(i)
 
                 # now update the point on the plot
-                points[i].set_xdata(boid.r[0])
-                points[i].set_ydata(boid.r[1])
+                boid_points[i].set_xdata(boid.r[0])
+                boid_points[i].set_ydata(boid.r[1])
                 if boid in visible_list:
-                    points[i].set_color('r')
+                    boid_points[i].set_color('r')
                 else:
-                    points[i].set_color('k')
+                    boid_points[i].set_color('k')
 
             # remove dead boids
+            # TODO: this looks like it's incorrect
+            # TODO: revisit. Perhaps removes non-dead boids, too
             for i in dead_boids:
                 self.boids.remove(self.boids[i])
-                points[i].remove()
-                points.remove(points[i])
+                boid_points[i].remove()
+                boid_points.remove(boid_points[i])
 
             # stop the animation if all the boids are dead
             if len(self.boids) == 0:

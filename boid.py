@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import rand
 
 
 class Boid():
@@ -8,9 +9,9 @@ class Boid():
         # hardcoded boid parameters
         self.visibility = 5
         self.collision_radius = 0.5
-        self.field_of_view = 90 * (np.pi / 180)
+        self.field_of_view = 180 * (np.pi / 180)
         self.max_v = 0.5
-        self.energy = 100
+        self.energy = 1000
         self.alive = True
 
         # boid parameters
@@ -44,7 +45,7 @@ class Boid():
         self.cohesion = np.array([0, 0])
         self.margin = np.array([0, 0])
 
-    def calculate_turn(self, boids, world_size, margin):
+    def calculate_turn(self, boids, foods, world_size, margin):
         """blah"""
         # calculate visible boids
         visible_boids = [boid for boid in boids
@@ -55,6 +56,11 @@ class Boid():
                            if (np.sqrt(np.sum((boid.r - self.r)**2)) < self.collision_radius
                                and calc_angle((boid.r - self.r), self.v) < self.field_of_view
                                and id(self) != id(boid))]
+        
+        # calculate visible foods
+        visible_foods = [food for food in foods
+                         if (np.sqrt(np.sum((food.r - self.r)**2)) < self.visibility
+                             and calc_angle((food.r - self.r), self.v) < self.field_of_view)]
 
         # separation
         self.separation = self.calc_separation(colliding_boids)
@@ -68,8 +74,11 @@ class Boid():
         # margin
         self.margin = self.calc_margin(world_size, margin)
 
+        # hunger (for clarity, hunger is a turning value like these other above)
+        self.hunger = self.calc_hunger(visible_foods)
+
         # weighted summed turning
-        self.v = self.separation + self.alignment + self.cohesion + self.margin + self.v
+        self.v = self.separation + self.alignment + self.cohesion + self.margin + self.hunger + self.v
         return
 
     def calc_separation(self, boids):
@@ -105,6 +114,17 @@ class Boid():
         direction = - np.array(self.r / abs(self.r)).astype(int)
         return 0.1 * dimension * direction
 
+    def calc_hunger(self, foods):
+        """This contributes to the turn, much like the above 'calc' functions"""
+        # calculate the relevent center of mass
+        if foods:
+            food_cm = np.average(np.array([food.r for food in foods]), axis=0)
+        else:
+            food_cm = self.r
+
+        # calculate the angle between the two points
+        return 0.1 * (food_cm - self.r)
+
     def calc_energy_loss(self):
         """blah"""
         self.energy -= np.sqrt(np.sum(self.v**2))
@@ -122,3 +142,14 @@ def calc_angle(u, v):
     top = np.sum(u * v)
     bot = np.sqrt(np.sum(u**2)) + np.sqrt(np.sum(v**2))
     return np.arccos(top / bot)
+
+
+def create_boids(N_boids, world_size):
+    """blah"""
+    boids = []
+    # create the boids
+    for _ in range(N_boids):
+        boids.append(Boid(np.array([rand() * world_size[0] - (world_size[0] / 2),
+                                    rand() * world_size[0] - (world_size[0] / 2)]),
+                          np.array([2 * rand() - 1, 2 * rand() - 1])))
+    return boids

@@ -37,14 +37,13 @@ class Food():
         return
 
 
-def create_foods(world_size):
+def create_foods(N_foods, world_size):
     """blah"""
     # some starting values
-    N_food = 1
     foods = []
 
     # create the boids (initially will just be one)
-    for _ in range(N_food):
+    for _ in range(N_foods):
         foods.append(Food(np.array([rand() * world_size[0] - (world_size[0] / 2),
                                     rand() * world_size[0] - (world_size[0] / 2)])))
 
