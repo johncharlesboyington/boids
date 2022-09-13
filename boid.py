@@ -10,7 +10,7 @@ class Boid():
         self.visibility = 5
         self.collision_radius = 0.5
         self.field_of_view = 180 * (np.pi / 180)
-        self.max_v = 0.5
+        self.max_v = 3
         self.energy = 1000
         self.alive = True
 
@@ -123,11 +123,11 @@ class Boid():
             food_cm = self.r
 
         # calculate the angle between the two points
-        return 0.1 * (food_cm - self.r)
+        return 0.0 * (food_cm - self.r)
 
     def calc_energy_loss(self):
         """blah"""
-        self.energy -= np.sqrt(np.sum(self.v**2))
+        self.energy -= np.sqrt(np.sum(self.v**2)) + 1
         return
 
     def check_alive(self):
